@@ -1,94 +1,68 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
+  <div class="loginForm">
+    <b-form>
+      <b-form-group id="inputUsername"
+                    label="Usename:"
+                    label-for="username">
+        <b-form-input id="username"
+                      v-model="form.username"
+                      required
+                      placeholder="username">
+        </b-form-input>
+      </b-form-group>
+      <b-form-group id="inputPassword"
+                    label="Password:"
+                    label-for="password">
+        <b-form-input id="password"
+                      type="password"
+                      v-model="form.password"
+                      required
+                      placeholder="password">
+        </b-form-input>
+      </b-form-group>
+      <b-button v-on:click="checkSuccess" variant="primary">Login</b-button>
+      <b-button v-on:click="onRegister" variant="secondary">Register</b-button>
+    </b-form>
   </div>
 </template>
 
 <script>
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      form: {
+        username: '',
+        password: ''
+      }
+    }
+  },
+  methods: {
+    onLogin () {
+      console.log('login')
+      return this.axios.get('http://192.168.1.118:5000/login?username=' + this.form.username + '&password=' + this.form.password)
+        .then(function (response) {
+          return response.data
+        })
+    },
+    onRegister () {
+      console.log('register')
+      let params = {'username': this.form.username, 'password': this.form.password}
+      this.axios.post('http://192.168.1.118:5000/register', params)
+        .then(function (response) {
+          console.log(response.data.status)
+        })
+    },
+    checkSuccess () {
+      this.onLogin()
+        .then(data => {
+          if (data.status === 'Login Successful!') {
+            this.$router.push({path: '/tweets'})
+          }
+        })
     }
   }
 }
@@ -96,18 +70,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>
