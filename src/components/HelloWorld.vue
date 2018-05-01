@@ -20,9 +20,10 @@
                       placeholder="password">
         </b-form-input>
       </b-form-group>
-      <b-button v-on:click="checkSuccess" variant="primary">Login</b-button>
+      <b-button v-on:click="onLogin" variant="primary">Login</b-button>
       <b-button v-on:click="onRegister" variant="secondary">Register</b-button>
     </b-form>
+  <p>{{ response_message }}</p>
   </div>
 </template>
 
@@ -37,31 +38,34 @@ export default {
       form: {
         username: '',
         password: ''
-      }
+      },
+      response_message: ''
     }
   },
   methods: {
     onLogin () {
       console.log('login')
-      return this.axios.get('http://192.168.1.118:5000/login?username=' + this.form.username + '&password=' + this.form.password)
+      let config = {
+        auth: {
+          'username': this.form.username,
+          'password': this.form.password
+        }
+      }
+      return this.axios.get('http://192.168.1.118:5000/api/token', config)
         .then(function (response) {
-          return response.data
+          console.log(response.data.token)
+          localStorage.setItem('tweet-token', response.data.token)
         })
     },
     onRegister () {
+      let self = this
       console.log('register')
       let params = {'username': this.form.username, 'password': this.form.password}
-      this.axios.post('http://192.168.1.118:5000/register', params)
+      this.axios.post('http://192.168.1.118:5000/api/register', params)
         .then(function (response) {
-          console.log(response.data.status)
-        })
-    },
-    checkSuccess () {
-      this.onLogin()
-        .then(data => {
-          if (data.status === 'Login Successful!') {
-            this.$router.push({path: '/tweets'})
-          }
+          self.form.username = ''
+          self.form.password = ''
+          self.response_message = response.data.status
         })
     }
   }
