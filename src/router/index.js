@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
-import Tweets from '@/components/Tweets'
+import Feed from '@/components/Feed'
 import BootstrapVue from 'bootstrap-vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -18,9 +18,9 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/tweets',
-      name: 'Tweets',
-      component: Tweets,
+      path: '/feed',
+      name: 'Feed',
+      component: Feed,
       meta: {requiresAuth: true}
     }
   ]
