@@ -1,5 +1,6 @@
 <template>
   <div class="loginForm">
+    <h1>Twitter Memories</h1>
     <b-form>
       <b-form-group id="inputUsername"
                     label="Usename:"

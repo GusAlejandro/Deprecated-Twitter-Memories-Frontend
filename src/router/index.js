@@ -11,6 +11,7 @@ Vue.use(Router)
 Vue.use(VueAxios, axios)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -20,8 +21,8 @@ export default new Router({
     {
       path: '/feed',
       name: 'Feed',
-      component: Feed,
-      meta: {requiresAuth: true}
+      component: Feed
+      // meta: {requiresAuth: true}
     }
   ]
 })
