@@ -1,30 +1,34 @@
 <template>
   <div class="loginForm">
-    <h1>Twitter Memories</h1>
-    <b-form>
-      <b-form-group id="inputUsername"
-                    label="Usename:"
-                    label-for="username">
-        <b-form-input id="username"
-                      v-model="form.username"
-                      required
-                      placeholder="username">
-        </b-form-input>
-      </b-form-group>
-      <b-form-group id="inputPassword"
-                    label="Password:"
-                    label-for="password">
-        <b-form-input id="password"
-                      type="password"
-                      v-model="form.password"
-                      required
-                      placeholder="password">
-        </b-form-input>
-      </b-form-group>
-      <b-button v-on:click="onLogin" variant="primary">Login</b-button>
-      <b-button v-on:click="onRegister" variant="secondary">Register</b-button>
-    </b-form>
-  <p>{{ response_message }}</p>
+    <b-navbar toggleable="md" type="dark" variant="dark">
+      <b-navbar-brand>Twitter Memories</b-navbar-brand>
+    </b-navbar>
+    <b-container align="left" style="margin-top: 10px">
+      <b-form>
+        <b-form-group id="inputUsername"
+                      label="Username:"
+                      label-for="username">
+          <b-form-input id="username"
+                        v-model="form.username"
+                        required
+                        placeholder="username">
+          </b-form-input>
+        </b-form-group>
+        <b-form-group id="inputPassword"
+                      label="Password:"
+                      label-for="password">
+          <b-form-input id="password"
+                        type="password"
+                        v-model="form.password"
+                        required
+                        placeholder="password">
+          </b-form-input>
+        </b-form-group>
+        <p>{{ response_message }}</p>
+        <b-button v-on:click="onLogin" variant="primary">Login</b-button>
+        <b-button v-on:click="onRegister" variant="secondary">Register</b-button>
+      </b-form>
+    </b-container>
   </div>
 </template>
 
@@ -45,6 +49,7 @@ export default {
   },
   methods: {
     onLogin () {
+      let self = this
       console.log('login')
       let config = {
         auth: {
@@ -56,6 +61,11 @@ export default {
         .then(function (response) {
           console.log(response.data.token)
           localStorage.setItem('tweet-token', response.data.token)
+          self.$router.push('/feed')
+        })
+        .catch(error => {
+          console.log(error.message)
+          this.response_message = 'Incorrect Credentials'
         })
     },
     onRegister () {
@@ -68,7 +78,13 @@ export default {
           self.form.password = ''
           self.response_message = response.data.status
         })
+    },
+    refreshToken () {
+      localStorage.setItem('tweet-token', '')
     }
+  },
+  beforeMount () {
+    this.refreshToken()
   }
 }
 </script>
