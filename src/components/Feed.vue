@@ -1,5 +1,5 @@
 <template>
-  <!--TODO: HANDLE THE THREE STATES: FILE UPLOAD, FILE PROCESS, TWEETS SHOW-->
+  <!--TODO: HANDLE THE THREE STATES: FILE UPLOAD FORM, FILE PROCESS, TWEETS SHOW-->
   <div class="the-feed">
     <b-navbar toggleable="md" type="dark" variant="dark">
         <b-navbar-brand>Twitter Memories</b-navbar-brand>
@@ -12,15 +12,15 @@
       <b-row>
         <b-col>
         </b-col>
-        <div class="processing">
+        <div v-show="file_processing">
           <p>Your archive is currently being processed, refresh to check if your tweets are now ready.</p>
         </div>
-        <div class="file_upload" v-show="opp_file_stat">
+        <div class="file_upload" v-show="file_not_there">
           <p>Upload your twitter archive, you can download it by following <a href="https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive">this</a></p>
           <b-form-file class="mt-3" v-model="file" style="display: inline-block" plain></b-form-file>
           <b-button @click="uploadFile" style="display: inline-block">Submit</b-button>
         </div>
-        <b-col v-show="file_stat">
+        <b-col v-show="file_done">
           <!--Based on current layout, we just populate the collect_of_id array with response from GET /tweets-->
           <Tweet v-for="item in collect_of_id" v-bind:key="item" :tweet_id="item"></Tweet>
         </b-col>
@@ -35,6 +35,7 @@
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Tweet from './Tweet'
+
 export default {
   name: 'Feed',
   components: {Tweet},
@@ -46,16 +47,28 @@ export default {
         '976628869640826880',
         '975081484477390848'
       ],
-      file_stat: false,
+      file_stat: '',
       file: '',
-      opp_file_stat: true,
-      processing_done: false
+      file_not_there: false,
+      file_processing: false,
+      file_done: false
     }
   },
   methods: {
     getAll () {
       this.getFileStatus()
-      if (this.file_stat) {
+      if (this.file_stat === '0') {
+        this.file_not_there = true
+        this.file_processing = false
+        this.file_done = false
+      } else if (this.file_stat === '1') {
+        this.file_not_there = false
+        this.file_processing = true
+        this.file_done = false
+      } else if (this.file_stat === '2') {
+        this.file_not_there = false
+        this.file_processing = false
+        this.file_done = true
         this.getTweets()
       }
     },
@@ -88,8 +101,21 @@ export default {
     }
   },
   watch: {
+    // probably dont need this, since we only hit /api/file_status before mount
     file_stat: function () {
-      this.opp_file_stat = !this.file_stat
+      if (this.file_stat === '0') {
+        this.file_not_there = true
+        this.file_processing = false
+        this.file_done = false
+      } else if (this.file_stat === '1') {
+        this.file_not_there = false
+        this.file_processing = true
+        this.file_done = false
+      } else if (this.file_stat === '2') {
+        this.file_not_there = false
+        this.file_processing = false
+        this.file_done = true
+      }
     }
   },
   beforeMount () {
