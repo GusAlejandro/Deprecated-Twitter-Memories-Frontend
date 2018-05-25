@@ -1,10 +1,10 @@
 <template>
-  <!--TODO: HANDLE THE THREE STATES: FILE UPLOAD FORM, FILE PROCESS, TWEETS SHOW-->
+  <!--TODO: Clean up how we handle the 3 states in the watch/getAll JS-->
   <div class="the-feed">
     <b-navbar toggleable="md" type="dark" variant="dark">
         <b-navbar-brand>Twitter Memories</b-navbar-brand>
         <b-navbar-nav class="ml-auto">
-          <b-nav-item right><b-button>Logout</b-button></b-nav-item>
+          <b-nav-item right><b-button @click="logout">Logout</b-button></b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-container align="center">
@@ -22,7 +22,7 @@
         </div>
         <b-col v-show="file_done">
           <!--Based on current layout, we just populate the collect_of_id array with response from GET /tweets-->
-          <Tweet v-for="item in collect_of_id" v-bind:key="item" :tweet_id="item"></Tweet>
+          <Tweet v-for="item in collect_of_id" v-bind:key="item" :id="item"><div class="spinner"></div></Tweet>
         </b-col>
         <b-col>
         </b-col>
@@ -34,19 +34,14 @@
 <script>
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Tweet from './Tweet'
+import Tweet from 'vue-tweet-embed/tweet'
 
 export default {
   name: 'Feed',
   components: {Tweet},
   data () {
     return {
-      collect_of_id: [
-        '989392196687155201',
-        '989283779872149505',
-        '976628869640826880',
-        '975081484477390848'
-      ],
+      collect_of_id: [],
       file_stat: '',
       file: '',
       file_not_there: false,
@@ -57,6 +52,7 @@ export default {
   methods: {
     getAll () {
       this.getFileStatus()
+      // this.getTweets()
       if (this.file_stat === '0') {
         this.file_not_there = true
         this.file_processing = false
@@ -69,35 +65,61 @@ export default {
         this.file_not_there = false
         this.file_processing = false
         this.file_done = true
-        this.getTweets()
       }
     },
     getFileStatus () {
       let self = this
       let config = {auth: {'username': localStorage.getItem('tweet-token'), 'password': 'unused'}}
-      this.axios.get('http://192.168.1.118:5000/api/file_status', config)
+      this.axios.get('https://twitter-memories.herokuapp.com/api/file_status', config)
         .then(function (response) {
           self.file_stat = response.data.file_status
+          // console.log(self.file_stat)
         })
     },
     getTweets () {
-      let config = {auth: {'username': localStorage.getItem('tweet-token'), 'password': 'unused'}}
-      this.axios.get('http://192.168.1.118:5000/api/tweets', config)
+      let self = this
+      console.log('we out here')
+      let currDate = new Date()
+      let month = currDate.getMonth() + 1
+      if (month <= 9) {
+        month = '0' + month.toString()
+      } else {
+        month = month.toString()
+      }
+      let date = currDate.getDate()
+      if (date <= 9) {
+        date = '0' + date.toString()
+      } else {
+        date = date.toString()
+      }
+      let config = {auth: {'username': localStorage.getItem('tweet-token'), 'password': 'unused'}, params: {'month': month, 'date': date}}
+      this.axios.get('https://twitter-memories.herokuapp.com/api/tweets', config)
         .then(function (response) {
-          console.log(response.data)
+          if (response.data.TWEETS.length === 0) {
+            self.collect_of_id.push('997275242975322112')
+          } else {
+            for (let i = 0; i < response.data.TWEETS.length; i++) {
+              self.collect_of_id.push(response.data.TWEETS[i]['id'])
+            }
+          }
         })
     },
     uploadFile () {
       const formData = new FormData()
       formData.append('file', this.file)
       let config = {auth: {'username': localStorage.getItem('tweet-token'), 'password': 'unused'}}
-      this.axios.post('http://192.168.1.118:5000/api/upload', formData, config)
+      this.axios.post('https://twitter-memories.herokuapp.com/api/upload', formData, config)
         .then(function (response) {
           console.log(response.data)
         })
         .catch(error => {
           console.log(error.message)
         })
+    },
+    logout () {
+      let self = this
+      localStorage.setItem('tweet-token', '')
+      self.$router.push('/')
     }
   },
   watch: {
@@ -115,6 +137,7 @@ export default {
         this.file_not_there = false
         this.file_processing = false
         this.file_done = true
+        this.getTweets()
       }
     }
   },

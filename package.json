@@ -14,9 +14,11 @@
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.9",
     "firebase": "^5.0.1",
+    "npm": "^6.1.0",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.1",
     "vue-router": "^3.0.1",
+    "vue-tweet-embed": "^2.1.1",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

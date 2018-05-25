@@ -57,7 +57,7 @@ export default {
           'password': this.form.password
         }
       }
-      return this.axios.get('http://192.168.1.118:5000/api/token', config)
+      return this.axios.get('https://twitter-memories.herokuapp.com/api/token', config)
         .then(function (response) {
           console.log(response.data.token)
           localStorage.setItem('tweet-token', response.data.token)
@@ -72,7 +72,7 @@ export default {
       let self = this
       console.log('register')
       let params = {'username': this.form.username, 'password': this.form.password}
-      this.axios.post('http://192.168.1.118:5000/api/register', params)
+      this.axios.post('https://twitter-memories.herokuapp.com/api/register', params)
         .then(function (response) {
           self.form.username = ''
           self.form.password = ''
